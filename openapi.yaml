@@ -1,0 +1,1318 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: داما القابضة - نظام الإدارة المتكامل
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+  - name: auth
+  - name: employees
+  - name: consultants
+  - name: trainees
+  - name: companies
+  - name: nonprofits
+  - name: services
+  - name: projects
+  - name: users
+  - name: stats
+
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: تسجيل الدخول
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: تم تسجيل الدخول
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LoginResponse"
+        "401":
+          description: بيانات غير صحيحة
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: معلومات المستخدم الحالي
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: معلومات المستخدم
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MeResponse"
+
+  /auth/setup:
+    post:
+      operationId: setupAdmin
+      tags: [auth]
+      summary: إعداد حساب المدير الأول
+      responses:
+        "200":
+          description: تم الإعداد
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+
+  /stats/dashboard:
+    get:
+      operationId: getDashboardStats
+      tags: [stats]
+      summary: إحصائيات لوحة التحكم
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: الإحصائيات
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /employees:
+    get:
+      operationId: getEmployees
+      tags: [employees]
+      summary: جلب جميع الموظفين
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة الموظفين
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Employee"
+    post:
+      operationId: createEmployee
+      tags: [employees]
+      summary: إضافة موظف
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /employees/{id}:
+    get:
+      operationId: getEmployee
+      tags: [employees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات الموظف
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Employee"
+    put:
+      operationId: updateEmployee
+      tags: [employees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EmployeeInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteEmployee
+      tags: [employees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /consultants:
+    get:
+      operationId: getConsultants
+      tags: [consultants]
+      summary: جلب جميع المستشارين
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة المستشارين
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Consultant"
+    post:
+      operationId: createConsultant
+      tags: [consultants]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultantInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /consultants/{id}:
+    get:
+      operationId: getConsultant
+      tags: [consultants]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات المستشار
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Consultant"
+    put:
+      operationId: updateConsultant
+      tags: [consultants]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultantInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteConsultant
+      tags: [consultants]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /trainees:
+    get:
+      operationId: getTrainees
+      tags: [trainees]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة المتدربين
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Trainee"
+    post:
+      operationId: createTrainee
+      tags: [trainees]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TraineeInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /trainees/{id}:
+    get:
+      operationId: getTrainee
+      tags: [trainees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات المتدرب
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Trainee"
+    put:
+      operationId: updateTrainee
+      tags: [trainees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/TraineeInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteTrainee
+      tags: [trainees]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /companies:
+    get:
+      operationId: getCompanies
+      tags: [companies]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة الشركات
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Company"
+    post:
+      operationId: createCompany
+      tags: [companies]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /companies/{id}:
+    get:
+      operationId: getCompany
+      tags: [companies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات الشركة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Company"
+    put:
+      operationId: updateCompany
+      tags: [companies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CompanyInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteCompany
+      tags: [companies]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /nonprofits:
+    get:
+      operationId: getNonprofits
+      tags: [nonprofits]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة المنشآت غير الربحية
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Nonprofit"
+    post:
+      operationId: createNonprofit
+      tags: [nonprofits]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonprofitInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /nonprofits/{id}:
+    get:
+      operationId: getNonprofit
+      tags: [nonprofits]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات المنشأة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Nonprofit"
+    put:
+      operationId: updateNonprofit
+      tags: [nonprofits]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NonprofitInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteNonprofit
+      tags: [nonprofits]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /services:
+    get:
+      operationId: getServices
+      tags: [services]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة الخدمات
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Service"
+    post:
+      operationId: createService
+      tags: [services]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /services/{id}:
+    get:
+      operationId: getService
+      tags: [services]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات الخدمة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Service"
+    put:
+      operationId: updateService
+      tags: [services]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ServiceInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteService
+      tags: [services]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /projects:
+    get:
+      operationId: getProjects
+      tags: [projects]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة المشاريع
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Project"
+    post:
+      operationId: createProject
+      tags: [projects]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /projects/{id}:
+    get:
+      operationId: getProject
+      tags: [projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: بيانات المشروع
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Project"
+    put:
+      operationId: updateProject
+      tags: [projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteProject
+      tags: [projects]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+  /users:
+    get:
+      operationId: getUsers
+      tags: [users]
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: قائمة المستخدمين
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      operationId: createUser
+      tags: [users]
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "201":
+          description: تم الإضافة
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /users/{id}:
+    put:
+      operationId: updateUser
+      tags: [users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserInput"
+      responses:
+        "200":
+          description: تم التعديل
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+    delete:
+      operationId: deleteUser
+      tags: [users]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: تم الحذف
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+        password:
+          type: string
+      required:
+        - username
+        - password
+
+    LoginResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/UserInfo"
+      required:
+        - success
+        - token
+        - user
+
+    MeResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/UserInfo"
+      required:
+        - user
+
+    UserInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        username:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+      required:
+        - id
+        - username
+        - fullName
+        - role
+
+    DashboardStats:
+      type: object
+      properties:
+        employees:
+          type: integer
+        consultants:
+          type: integer
+        trainees:
+          type: integer
+        companies:
+          type: integer
+        nonprofits:
+          type: integer
+        services:
+          type: integer
+        projects:
+          type: integer
+        activeProjects:
+          type: integer
+        activeEmployees:
+          type: integer
+        availableConsultants:
+          type: integer
+      required:
+        - employees
+        - consultants
+        - trainees
+        - companies
+        - nonprofits
+        - services
+        - projects
+        - activeProjects
+        - activeEmployees
+        - availableConsultants
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: object
+        errors:
+          type: array
+          items:
+            type: string
+        warnings:
+          type: array
+          items:
+            type: string
+      required:
+        - success
+
+    Employee:
+      type: object
+      properties:
+        _id:
+          type: string
+        employeeId:
+          type: string
+        fullName:
+          type: string
+        nationalId:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        position:
+          type: string
+        department:
+          type: string
+        dateOfJoining:
+          type: string
+        salary:
+          type: number
+        status:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - _id
+        - fullName
+
+    EmployeeInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        nationalId:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        position:
+          type: string
+        department:
+          type: string
+        dateOfJoining:
+          type: string
+        salary:
+          type: number
+        status:
+          type: string
+      required:
+        - fullName
+
+    Consultant:
+      type: object
+      properties:
+        _id:
+          type: string
+        consultantId:
+          type: string
+        fullName:
+          type: string
+        nationalId:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        specialty:
+          type: string
+        academicRank:
+          type: string
+        consultingField:
+          type: string
+        availability:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - _id
+        - fullName
+
+    ConsultantInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        nationalId:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        specialty:
+          type: string
+        academicRank:
+          type: string
+        consultingField:
+          type: string
+        availability:
+          type: string
+      required:
+        - fullName
+        - email
+
+    Trainee:
+      type: object
+      properties:
+        _id:
+          type: string
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        university:
+          type: string
+        major:
+          type: string
+        trainingType:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        department:
+          type: string
+        finalGrade:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - _id
+        - fullName
+
+    TraineeInput:
+      type: object
+      properties:
+        fullName:
+          type: string
+        email:
+          type: string
+        phoneNumber:
+          type: string
+        university:
+          type: string
+        major:
+          type: string
+        trainingType:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        department:
+          type: string
+        finalGrade:
+          type: string
+      required:
+        - fullName
+
+    Company:
+      type: object
+      properties:
+        _id:
+          type: string
+        companyName:
+          type: string
+        crNumber:
+          type: string
+        industry:
+          type: string
+        companySize:
+          type: string
+        address:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - _id
+        - companyName
+
+    CompanyInput:
+      type: object
+      properties:
+        companyName:
+          type: string
+        crNumber:
+          type: string
+        industry:
+          type: string
+        companySize:
+          type: string
+        address:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+      required:
+        - companyName
+
+    Nonprofit:
+      type: object
+      properties:
+        _id:
+          type: string
+        establishmentName:
+          type: string
+        sector:
+          type: string
+        licenseNumber:
+          type: string
+        address:
+          type: string
+        website:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - _id
+        - establishmentName
+
+    NonprofitInput:
+      type: object
+      properties:
+        establishmentName:
+          type: string
+        sector:
+          type: string
+        licenseNumber:
+          type: string
+        address:
+          type: string
+        website:
+          type: string
+        contactPhone:
+          type: string
+        contactEmail:
+          type: string
+      required:
+        - establishmentName
+
+    Service:
+      type: object
+      properties:
+        _id:
+          type: string
+        serviceName:
+          type: string
+        serviceCategory:
+          type: string
+        description:
+          type: string
+        basePrice:
+          type: number
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - _id
+        - serviceName
+
+    ServiceInput:
+      type: object
+      properties:
+        serviceName:
+          type: string
+        serviceCategory:
+          type: string
+        description:
+          type: string
+        basePrice:
+          type: number
+        isActive:
+          type: boolean
+      required:
+        - serviceName
+
+    Project:
+      type: object
+      properties:
+        _id:
+          type: string
+        projectName:
+          type: string
+        companyId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Company"
+        serviceId:
+          oneOf:
+            - type: string
+            - $ref: "#/components/schemas/Service"
+        status:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - _id
+        - projectName
+
+    ProjectInput:
+      type: object
+      properties:
+        projectName:
+          type: string
+        companyId:
+          type: string
+        serviceId:
+          type: string
+        status:
+          type: string
+        startDate:
+          type: string
+        endDate:
+          type: string
+      required:
+        - projectName
+
+    User:
+      type: object
+      properties:
+        _id:
+          type: string
+        username:
+          type: string
+        email:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
+        createdAt:
+          type: string
+      required:
+        - _id
+        - username
+        - fullName
+        - role
+
+    UserInput:
+      type: object
+      properties:
+        username:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        fullName:
+          type: string
+        role:
+          type: string
+        isActive:
+          type: boolean
