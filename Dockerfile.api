@@ -1,0 +1,31 @@
+# ─── مرحلة البناء ───────────────────────────────────────────
+FROM node:20 AS builder
+WORKDIR /workspace
+
+# تثبيت pnpm
+RUN npm install -g pnpm@10
+
+# نسخ ملفات الـ workspace
+COPY package.json pnpm-workspace.yaml pnpm-lock.yaml tsconfig.json ./
+
+# نسخ المكتبات المشتركة
+COPY lib/ lib/
+
+# نسخ الـ API server
+COPY artifacts/api-server/ artifacts/api-server/
+
+# تثبيت الحزم وبناء
+RUN pnpm install --no-frozen-lockfile
+WORKDIR /workspace/artifacts/api-server
+RUN pnpm run build
+
+# ─── مرحلة التشغيل ──────────────────────────────────────────
+FROM node:20-slim
+WORKDIR /app
+
+COPY --from=builder /workspace/artifacts/api-server/dist ./dist
+
+EXPOSE 8080
+ENV NODE_ENV=production
+
+CMD ["node", "--enable-source-maps", "./dist/index.mjs"]

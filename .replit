@@ -1,0 +1,40 @@
+modules = ["nodejs-24", "postgresql-16"]
+
+[[artifacts]]
+id = "artifacts/api-server"
+
+[[artifacts]]
+id = "artifacts/mockup-sandbox"
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[userenv]
+
+[userenv.shared]
+
+[userenv.development]
+MONGODB_LOCAL = "true"
+SUPABASE_DATABASE_URL = "postgresql://postgres:Dd4455Dd%40dama@db.nflvzaixbyloclweurko.supabase.co:5432/postgres"
+
+[userenv.production]
+SUPABASE_DATABASE_URL = "postgresql://postgres:Dd4455Dd%40dama@db.nflvzaixbyloclweurko.supabase.co:5432/postgres"
+
+[nix]
+channel = "stable-25_05"
