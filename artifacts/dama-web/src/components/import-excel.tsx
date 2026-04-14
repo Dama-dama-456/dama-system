@@ -23,8 +23,8 @@ interface ImportExcelProps {
   canImport?: boolean;
 }
 
-const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || "";
-
+const API_BASE = (import.meta.env.VITE_API_URL || "https://dama-system.onrender.com").replace(/\/$/, "");
+const BASE = import.meta.env.BASE_URL?.replace(/\/$/, "") || ""; 
 function getToken(): string | null {
   return localStorage.getItem("dama_token");
 }
@@ -54,12 +54,12 @@ export function ImportExcel({ entity, entityLabel, onSuccess, canImport = true }
   };
 
   const downloadTemplate = () => {
-    downloadViaFetch(`${BASE}/api/import/${entity}/template`, `${entity}-template.xlsx`);
+    downloadViaFetch(`${API_BASE}/api/import/${entity}/template`, `${entity}-template.xlsx`);
   };
 
   const exportData = () => {
     const date = new Date().toISOString().substring(0, 10);
-    downloadViaFetch(`${BASE}/api/export/${entity}`, `${entity}-export-${date}.xlsx`);
+    downloadViaFetch(`${API_BASE}/api/export/${entity}`, `${entity}-export-${date}.xlsx`);
   };
 
   const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -79,7 +79,7 @@ export function ImportExcel({ entity, entityLabel, onSuccess, canImport = true }
     setUploading(true);
 
     try {
-      const res = await fetch(`${BASE}/api/import/${entity}`, {
+      const res = await fetch(`${API_BASE}/api/import/${entity}`, {
         method: "POST",
         headers: { Authorization: `Bearer ${getToken()}` },
         body: formData,
