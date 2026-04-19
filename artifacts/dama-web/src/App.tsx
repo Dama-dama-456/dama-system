@@ -24,7 +24,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/">
-        {token ? <Redirect to="/dashboard" /> : <Redirect to="/login" />}
+        <Redirect to="/login" />
       </Route>
       <Route path="/login" component={Login} />
       <Route path="/dashboard" component={Dashboard} />
