@@ -11,6 +11,7 @@ function mapRow(r: any) {
     _id: id, id,
     companyName: r.company_name, crNumber: r.cr_number,
     industry: r.industry, companySize: r.company_size,
+    contractStatus: r.contract_status,
     address: r.address, contactPhone: r.contact_phone,
     contactEmail: r.contact_email, isDeleted: r.is_deleted,
     createdAt: r.created_at, updatedAt: r.updated_at,
@@ -32,6 +33,7 @@ router.post("/", requireRole("admin", "manager"), async (req, res) => {
       _id: seq,
       company_name: b.companyName, cr_number: b.crNumber || null,
       industry: b.industry || null, company_size: b.companySize || null,
+      contract_status: b.contractStatus || null,
       address: b.address || null, contact_phone: b.contactPhone || null,
       contact_email: b.contactEmail || null,
     });
@@ -55,6 +57,7 @@ router.put("/:id", requireRole("admin", "manager"), async (req, res) => {
     if (b.crNumber !== undefined) update.cr_number = b.crNumber || null;
     if (b.industry !== undefined) update.industry = b.industry || null;
     if (b.companySize !== undefined) update.company_size = b.companySize || null;
+    if (b.contractStatus !== undefined) update.contract_status = b.contractStatus || null;
     if (b.address !== undefined) update.address = b.address || null;
     if (b.contactPhone !== undefined) update.contact_phone = b.contactPhone || null;
     if (b.contactEmail !== undefined) update.contact_email = b.contactEmail || null;

@@ -92,6 +92,7 @@ const CompanySchema = new Schema({
   cr_number: { type: String, default: null },
   industry: { type: String, default: null },
   company_size: { type: String, default: null },
+  contract_status: { type: String, default: null },
   address: { type: String, default: null },
   contact_phone: { type: String, default: null },
   contact_email: { type: String, default: null },

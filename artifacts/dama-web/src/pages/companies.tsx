@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout";
@@ -17,10 +18,11 @@ import { ImportExcel } from "@/components/import-excel";
 import { useRole } from "@/hooks/use-role";
 
 const COMPANY_SIZES = ["ناشئة","صغيرة","متوسطة","كبيرة","مؤسسة"];
+const CONTRACT_STATUSES = ["ساري المفعول","منتهي","لا يوجد"];
 
 const EMPTY: CompanyInput = {
   companyName: "", crNumber: "", industry: "",
-  companySize: "", address: "", contactPhone: "", contactEmail: "",
+  companySize: "", contractStatus: "", address: "", contactPhone: "", contactEmail: "",
 };
 
 export default function Companies() {
@@ -40,7 +42,7 @@ export default function Companies() {
   const set = (patch: Partial<CompanyInput>) => setFormData(f => ({ ...f, ...patch }));
 
   const filtered = (companies ?? []).filter(c =>
-    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.contactEmail, c.companySize]
+    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.contactEmail, c.companySize, c.contractStatus]
       .some(v => String(v ?? "").toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -53,6 +55,7 @@ export default function Companies() {
     setFormData({
       companyName: c.companyName || "", crNumber: c.crNumber || "",
       industry: c.industry || "", companySize: c.companySize || "",
+      contractStatus: c.contractStatus || "",
       address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: c.contactEmail || "",
     });
     setEditingId(c._id);
@@ -113,6 +116,13 @@ export default function Companies() {
                         <SelectContent>{COMPANY_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
+                    <div className="space-y-1.5">
+                      <Label>حالة العقد</Label>
+                      <Select value={formData.contractStatus || ""} onValueChange={v => set({ contractStatus: v })}>
+                        <SelectTrigger><SelectValue placeholder="اختر حالة العقد" /></SelectTrigger>
+                        <SelectContent>{CONTRACT_STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      </Select>
+                    </div>
                     <div className="space-y-1.5 col-span-2">
                       <Label>العنوان</Label>
                       <Input value={formData.address} onChange={e => set({ address: e.target.value })} placeholder="العنوان التفصيلي" />
@@ -149,15 +159,16 @@ export default function Companies() {
                 <TableHead>رقم السجل التجاري</TableHead>
                 <TableHead>القطاع</TableHead>
                 <TableHead>حجم الشركة</TableHead>
+                <TableHead>حالة العقد</TableHead>
                 <TableHead>الهاتف</TableHead>
                 <TableHead className="w-[100px]">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={6} className="text-center">جاري التحميل...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center">جاري التحميل...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">{search ? "لا توجد نتائج مطابقة" : "لا يوجد شركات"}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">{search ? "لا توجد نتائج مطابقة" : "لا يوجد شركات"}</TableCell></TableRow>
               ) : (
                 filtered.map(c => (
                   <TableRow key={c._id}>
@@ -165,6 +176,7 @@ export default function Companies() {
                     <TableCell dir="ltr" className="text-right">{c.crNumber}</TableCell>
                     <TableCell>{c.industry}</TableCell>
                     <TableCell>{c.companySize}</TableCell>
+                    <TableCell>{c.contractStatus}</TableCell>
                     <TableCell dir="ltr" className="text-right">{c.contactPhone}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
