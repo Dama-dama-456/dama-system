@@ -125,8 +125,8 @@ export default function Employees() {
                       <Input required value={formData.fullName} onChange={e => set({ fullName: e.target.value })} placeholder="أدخل الاسم الكامل" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>رقم الهوية <span className="text-destructive">*</span></Label>
-                      <Input required value={formData.nationalId} onChange={e => set({ nationalId: e.target.value })} placeholder="10 أرقام" dir="ltr" className="text-right" />
+                      <Label>رقم الهوية </Label>
+                      <Input  value={formData.nationalId} onChange={e => set({ nationalId: e.target.value })} placeholder="10 أرقام" dir="ltr" className="text-right" />
                     </div>
                     <div className="space-y-1.5">
                       <Label>البريد الإلكتروني</Label>

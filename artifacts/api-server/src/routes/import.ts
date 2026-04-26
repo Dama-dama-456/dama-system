@@ -64,11 +64,11 @@ const COMPANY_SIZE_AR = ["ناشئة", "صغيرة", "متوسطة", "كبيرة
 const DEPT_AR = ["الوحدة التشغيلية", "الموارد البشرية", "اتصال مؤسسي", "المالية", "التسويق", "إعلام"];
 
 const TEMPLATES: Record<string, { headers: string[]; notes?: string[][] }> = {
-  employees: { headers: ["الاسم الكامل*", "رقم الهوية*", "البريد الإلكتروني*", "الهاتف", "تاريخ التعيين", "المسمى الوظيفي", "القسم", "الراتب", "الحالة"], notes: [[], [], [], [], ["صيغة: 2024-01-15"], [], ["الوحدة التشغيلية / الموارد البشرية / اتصال مؤسسي / المالية / التسويق / إعلام"], [], ["نشط / إجازة / استقالة / إنهاء خدمة"]] },
-  consultants: { headers: ["الاسم الكامل*", "رقم الهوية*", "البريد الإلكتروني*", "الهاتف", "التخصص", "الدرجة العلمية*", "التوافر", "المجال الاستشاري"], notes: [[], [], [], [], [], ["بكالوريوس / ماجستير / دكتوراه"], ["متاح / مشغول / غير نشط"], []] },
-  trainees: { headers: ["الاسم الكامل*", "البريد الإلكتروني*", "الهاتف", "الجامعة*", "التخصص", "نوع التدريب*", "تاريخ البدء", "تاريخ الانتهاء", "القسم"], notes: [[], [], [], [], [], ["صيفي / تعاوني / برنامج خريجين / تمهير / تدريب داما"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"], ["الوحدة التشغيلية / الموارد البشرية / اتصال مؤسسي / المالية / التسويق / إعلام"]] },
+  employees: { headers: ["الاسم الكامل*", "رقم الهوية", "البريد الإلكتروني", "الهاتف", "تاريخ التعيين", "المسمى الوظيفي", "القسم", "الراتب", "الحالة"], notes: [[], [], [], [], ["صيغة: 2024-01-15"], [], ["الوحدة التشغيلية / الموارد البشرية / اتصال مؤسسي / المالية / التسويق / إعلام"], [], ["نشط / إجازة / استقالة / إنهاء خدمة"]] },
+  consultants: { headers: ["الاسم الكامل*", "رقم الهوية", "البريد الإلكتروني", "الهاتف", "التخصص", "الدرجة العلمية*", "التوافر", "المجال الاستشاري"], notes: [[], [], [], [], [], ["بكالوريوس / ماجستير / دكتوراه"], ["متاح / مشغول / غير نشط"], []] },
+  trainees: { headers: ["الاسم الكامل*", "البريد الإلكتروني", "الهاتف", "الجامعة*", "التخصص", "نوع التدريب*", "تاريخ البدء", "تاريخ الانتهاء", "القسم"], notes: [[], [], [], [], [], ["صيفي / تعاوني / برنامج خريجين / تمهير / تدريب داما"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"], ["الوحدة التشغيلية / الموارد البشرية / اتصال مؤسسي / المالية / التسويق / إعلام"]] },
   companies: { headers: ["اسم الشركة*", "رقم السجل التجاري*", "القطاع", "حجم الشركة", "العنوان", "الهاتف", "البريد الإلكتروني"], notes: [[], [], [], ["ناشئة / صغيرة / متوسطة / كبيرة / مؤسسة"], [], [], []] },
-  nonprofits: { headers: ["اسم المنشأة*", "رقم الترخيص*", "القطاع", "العنوان", "الموقع الإلكتروني", "الهاتف", "البريد الإلكتروني*"], notes: [["يقبل أيضاً: اسم المنشاء / اسم المنظمة"], [], [], [], [], [], []] },
+  nonprofits: { headers: ["اسم المنشأة*", "رقم الترخيص*", "القطاع", "العنوان", "الموقع الإلكتروني", "الهاتف", "البريد الإلكتروني"], notes: [["يقبل أيضاً: اسم المنشاء / اسم المنظمة"], [], [], [], [], [], []] },
   services: { headers: ["اسم الخدمة*", "فئة الخدمة", "الوصف", "السعر الأساسي", "نشطة"], notes: [[], [], [], [], ["نعم / لا"]] },
   projects: { headers: ["اسم المشروع*", "اسم الشركة*", "اسم الخدمة*", "الحالة", "تاريخ البدء", "تاريخ الانتهاء"], notes: [[], ["يجب أن تكون موجودة في النظام"], ["يجب أن تكون موجودة في النظام"], ["مخطط / قيد التنفيذ / مكتمل / معلق"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"]] },
 };
@@ -114,10 +114,8 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const fullName = col(r, "الاسم الكامل*", "الاسم الكامل");
         if (!fullName) { fail(rn, errRequired("الاسم الكامل")); continue; }
         const nationalId = col(r, "رقم الهوية*", "رقم الهوية");
-        if (!nationalId) { fail(rn, errRequired("رقم الهوية")); continue; }
         const email = col(r, "البريد الإلكتروني*", "البريد الإلكتروني");
-        if (!email) { fail(rn, errRequired("البريد الإلكتروني")); continue; }
-        if (!validateEmail(email)) { fail(rn, errInvalidEmail(email)); continue; }
+        if (email && !validateEmail(email)) { fail(rn, errInvalidEmail(email)); continue; }
         const phone = col(r, "الهاتف");
         const dateRaw = r["تاريخ التعيين"] ?? r["تاريخ التوظيف"] ?? "";
         const position = col(r, "المسمى الوظيفي");
@@ -131,12 +129,16 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         if (salary !== null && salary < 0) { fail(rn, errNegative("الراتب")); continue; }
         const dateStr = parseDate(dateRaw);
         if (dateRaw && !dateStr) { fail(rn, errInvalidDate("تاريخ التعيين", String(dateRaw))); continue; }
-        if (seenIds.has(nationalId)) { fail(rn, errDupInFile("رقم الهوية", nationalId)); continue; }
-        if (await Employee.findOne({ national_id: nationalId, is_deleted: false })) { fail(rn, errDupInDB("رقم الهوية", nationalId)); continue; }
-        seenIds.add(nationalId);
-        if (seenEmails.has(email.toLowerCase())) { fail(rn, errDupInFile("البريد الإلكتروني", email)); continue; }
-        if (await Employee.findOne({ email: { $regex: iregex(email) }, is_deleted: false })) { fail(rn, errDupInDB("البريد الإلكتروني", email)); continue; }
-        seenEmails.add(email.toLowerCase());
+        if (nationalId) {
+          if (seenIds.has(nationalId)) { fail(rn, errDupInFile("رقم الهوية", nationalId)); continue; }
+          if (await Employee.findOne({ national_id: nationalId, is_deleted: false })) { fail(rn, errDupInDB("رقم الهوية", nationalId)); continue; }
+          seenIds.add(nationalId);
+        }
+        if (email) {
+          if (seenEmails.has(email.toLowerCase())) { fail(rn, errDupInFile("البريد الإلكتروني", email)); continue; }
+          if (await Employee.findOne({ email: { $regex: iregex(email) }, is_deleted: false })) { fail(rn, errDupInDB("البريد الإلكتروني", email)); continue; }
+          seenEmails.add(email.toLowerCase());
+        }
         const seq = await getNextSeq("employee");
         await Employee.create({ _id: seq, employee_id: `EMP-${String(seq).padStart(4,"0")}`, full_name: fullName, national_id: nationalId, email, phone_number: phone||null, position: position||null, department: dept||null, date_of_joining: dateStr, salary, status });
         added.push(seq);
@@ -149,10 +151,8 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const fullName = col(r, "الاسم الكامل*", "الاسم الكامل");
         if (!fullName) { fail(rn, errRequired("الاسم الكامل")); continue; }
         const nationalId = col(r, "رقم الهوية*", "رقم الهوية");
-        if (!nationalId) { fail(rn, errRequired("رقم الهوية")); continue; }
         const email = col(r, "البريد الإلكتروني*", "البريد الإلكتروني");
-        if (!email) { fail(rn, errRequired("البريد الإلكتروني")); continue; }
-        if (!validateEmail(email)) { fail(rn, errInvalidEmail(email)); continue; }
+        if (email && !validateEmail(email)) { fail(rn, errInvalidEmail(email)); continue; }
         const academicRank = col(r, "الدرجة العلمية*", "الدرجة العلمية", "الرتبة الأكاديمية");
         if (!academicRank) { fail(rn, errRequired("الدرجة العلمية")); continue; }
         if (!ACADEMIC_RANK_AR.includes(academicRank)) { fail(rn, errInvalidValue("الدرجة العلمية", academicRank, ACADEMIC_RANK_AR)); continue; }
@@ -162,12 +162,16 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const availabilityRaw = col(r, "التوافر", "الحالة") || "متاح";
         const availability = AVAILABILITY_MAP[availabilityRaw];
         if (!availability) { fail(rn, errInvalidValue("التوافر", availabilityRaw, AVAILABILITY_AR)); continue; }
-        if (seenIds.has(nationalId)) { fail(rn, errDupInFile("رقم الهوية", nationalId)); continue; }
-        if (await Consultant.findOne({ national_id: nationalId, is_deleted: false })) { fail(rn, errDupInDB("رقم الهوية", nationalId)); continue; }
-        seenIds.add(nationalId);
-        if (seenEmails.has(email.toLowerCase())) { fail(rn, errDupInFile("البريد الإلكتروني", email)); continue; }
-        if (await Consultant.findOne({ email: { $regex: iregex(email) }, is_deleted: false })) { fail(rn, errDupInDB("البريد الإلكتروني", email)); continue; }
-        seenEmails.add(email.toLowerCase());
+        if (nationalId) {
+          if (seenIds.has(nationalId)) { fail(rn, errDupInFile("رقم الهوية", nationalId)); continue; }
+          if (await Consultant.findOne({ national_id: nationalId, is_deleted: false })) { fail(rn, errDupInDB("رقم الهوية", nationalId)); continue; }
+          seenIds.add(nationalId);
+        }
+        if (email) {
+          if (seenEmails.has(email.toLowerCase())) { fail(rn, errDupInFile("البريد الإلكتروني", email)); continue; }
+          if (await Consultant.findOne({ email: { $regex: iregex(email) }, is_deleted: false })) { fail(rn, errDupInDB("البريد الإلكتروني", email)); continue; }
+          seenEmails.add(email.toLowerCase());
+        }
         const seq = await getNextSeq("consultant");
         await Consultant.create({ _id: seq, consultant_id: `CON-${String(seq).padStart(4,"0")}`, full_name: fullName, national_id: nationalId, email, phone_number: phone||null, specialty: specialty||null, academic_rank: academicRank, consulting_field: consultingField||null, availability });
         added.push(seq);
@@ -180,8 +184,7 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const fullName = col(r, "الاسم الكامل*", "الاسم الكامل");
         if (!fullName) { fail(rn, errRequired("الاسم الكامل")); continue; }
         const email = col(r, "البريد الإلكتروني*", "البريد الإلكتروني");
-        if (!email) { fail(rn, errRequired("البريد الإلكتروني")); continue; }
-        if (!validateEmail(email)) { fail(rn, errInvalidEmail(email)); continue; }
+        if (email && !validateEmail(email)) { fail(rn, errInvalidEmail(email)); continue; }
         const university = col(r, "الجامعة*", "الجامعة");
         if (!university) { fail(rn, errRequired("الجامعة")); continue; }
         const trainingType = col(r, "نوع التدريب*", "نوع التدريب");
@@ -190,9 +193,11 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const phone = col(r, "الهاتف"); const major = col(r, "التخصص"); const dept = col(r, "القسم");
         const startRaw = r["تاريخ البدء"] ?? ""; const endRaw = r["تاريخ الانتهاء"] ?? "";
         if (dept && !DEPT_AR.includes(dept)) { fail(rn, errInvalidValue("القسم", dept, DEPT_AR)); continue; }
-        if (seenEmails.has(email.toLowerCase())) { fail(rn, errDupInFile("البريد الإلكتروني", email)); continue; }
-        if (await Trainee.findOne({ email: { $regex: iregex(email) }, is_deleted: false })) { fail(rn, errDupInDB("البريد الإلكتروني", email)); continue; }
-        seenEmails.add(email.toLowerCase());
+        if (email) {
+          if (seenEmails.has(email.toLowerCase())) { fail(rn, errDupInFile("البريد الإلكتروني", email)); continue; }
+          if (await Trainee.findOne({ email: { $regex: iregex(email) }, is_deleted: false })) { fail(rn, errDupInDB("البريد الإلكتروني", email)); continue; }
+          seenEmails.add(email.toLowerCase());
+        }
         const startDate = parseDate(startRaw); const endDate = parseDate(endRaw);
         if (startRaw && !startDate) { fail(rn, errInvalidDate("تاريخ البدء", String(startRaw))); continue; }
         if (endRaw && !endDate) { fail(rn, errInvalidDate("تاريخ الانتهاء", String(endRaw))); continue; }
@@ -232,8 +237,7 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const licenseNumber = col(r, "رقم الترخيص*", "رقم الترخيص");
         if (!licenseNumber) { fail(rn, errRequired("رقم الترخيص")); continue; }
         const contactEmail = col(r, "البريد الإلكتروني*", "البريد الإلكتروني", "بريد المسؤول", "بريد");
-        if (!contactEmail) { fail(rn, errRequired("البريد الإلكتروني")); continue; }
-        if (!validateEmail(contactEmail)) { fail(rn, errInvalidEmail(contactEmail)); continue; }
+        if (contactEmail && !validateEmail(contactEmail)) { fail(rn, errInvalidEmail(contactEmail)); continue; }
         const sector = col(r, "القطاع", "نوع المنظمة"); const address = col(r, "العنوان");
         const website = col(r, "الموقع الإلكتروني", "الموقع الالكتروني"); const contactPhone = col(r, "الهاتف", "هاتف");
         if (seenLic.has(licenseNumber)) { fail(rn, errDupInFile("رقم الترخيص", licenseNumber)); continue; }
