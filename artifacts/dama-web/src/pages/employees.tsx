@@ -129,8 +129,8 @@ export default function Employees() {
                       <Input required value={formData.nationalId} onChange={e => set({ nationalId: e.target.value })} placeholder="10 أرقام" dir="ltr" className="text-right" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>البريد الإلكتروني <span className="text-destructive">*</span></Label>
-                      <Input required type="email" value={formData.email} onChange={e => set({ email: e.target.value })} placeholder="example@domain.com" dir="ltr" className="text-right" />
+                      <Label>البريد الإلكتروني</Label>
+                      <Input type="email" value={formData.email} onChange={e => set({ email: e.target.value })} placeholder="example@domain.com" dir="ltr" className="text-right" />
                     </div>
                     <div className="space-y-1.5">
                       <Label>الهاتف</Label>
