@@ -6,13 +6,26 @@ const router = Router();
 router.use(authenticate);
 
 async function buildProjectView(p: any) {
-  const company = p.company_id ? await Company.findOne({ _id: p.company_id }).lean() : null;
+  let companyDisplay: any = null;
+  if (p.company_id !== null && p.company_id !== undefined) {
+    const numId = Number(p.company_id);
+    if (!isNaN(numId) && String(p.company_id) === String(numId)) {
+      const company = await Company.findOne({ _id: numId }).lean();
+      if (company) {
+        companyDisplay = { _id: String(company._id), id: String(company._id), companyName: company.company_name };
+      } else {
+        companyDisplay = String(p.company_id);
+      }
+    } else {
+      companyDisplay = String(p.company_id);
+    }
+  }
   const service = p.service_id ? await Service.findOne({ _id: p.service_id }).lean() : null;
   const id = String(p._id);
   return {
     _id: id, id,
     projectName: p.project_name,
-    companyId: company ? { _id: String(company._id), id: String(company._id), companyName: company.company_name } : null,
+    companyId: companyDisplay,
     serviceId: service ? { _id: String(service._id), id: String(service._id), serviceName: service.service_name } : null,
     status: p.status, startDate: p.start_date, endDate: p.end_date,
     isDeleted: p.is_deleted, createdAt: p.created_at, updatedAt: p.updated_at,
@@ -34,7 +47,7 @@ router.post("/", requireRole("admin", "manager"), async (req, res) => {
     const doc = await Project.create({
       _id: seq,
       project_name: b.projectName,
-      company_id: b.companyId ? Number(b.companyId) : null,
+      company_id: b.companyId || null,
       service_id: b.serviceId ? Number(b.serviceId) : null,
       status: b.status || "active",
       start_date: b.startDate || null, end_date: b.endDate || null,
@@ -57,7 +70,7 @@ router.put("/:id", requireRole("admin", "manager"), async (req, res) => {
     const b = req.body;
     const update: any = {};
     if (b.projectName) update.project_name = b.projectName;
-    if (b.companyId !== undefined) update.company_id = b.companyId ? Number(b.companyId) : null;
+    if (b.companyId !== undefined) update.company_id = b.companyId || null;
     if (b.serviceId !== undefined) update.service_id = b.serviceId ? Number(b.serviceId) : null;
     if (b.status) update.status = b.status;
     if (b.startDate !== undefined) update.start_date = b.startDate || null;

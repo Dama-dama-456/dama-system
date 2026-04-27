@@ -10,8 +10,8 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import {
   useGetProjects, useCreateProject, useUpdateProject, useDeleteProject,
-  useGetCompanies, useGetServices,
-  getGetProjectsQueryKey, ProjectInput, Project, Company, Service
+  useGetServices,
+  getGetProjectsQueryKey, ProjectInput, Project, Service
 } from "@workspace/api-client-react";
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { ImportExcel } from "@/components/import-excel";
@@ -39,13 +39,20 @@ const EMPTY: ProjectInput = {
 function getId(v: unknown): string {
   if (!v) return "";
   if (typeof v === "string") return v;
-  return (v as Company | Service)._id;
+  return (v as Service)._id;
+}
+
+function getCompanyText(v: unknown): string {
+  if (!v) return "";
+  if (typeof v === "string") return v;
+  const obj = v as any;
+  if (obj.companyName) return obj.companyName;
+  return String(obj._id ?? "");
 }
 
 export default function Projects() {
   const { canEdit, canDelete, canImport } = useRole();
   const { data: projects, isLoading } = useGetProjects();
-  const { data: companies } = useGetCompanies();
   const { data: services } = useGetServices();
 
   const createProject = useCreateProject();
@@ -62,17 +69,13 @@ export default function Projects() {
 
   const set = (patch: Partial<ProjectInput>) => setFormData(f => ({ ...f, ...patch }));
 
-  const getCompanyName = (v: unknown) => {
-    const id = getId(v);
-    return companies?.find(c => c._id === id)?.companyName ?? id;
-  };
   const getServiceName = (v: unknown) => {
     const id = getId(v);
     return services?.find(s => s._id === id)?.serviceName ?? id;
   };
 
   const filtered = (projects ?? []).filter(p => {
-    const cName = getCompanyName(p.companyId);
+    const cName = getCompanyText(p.companyId);
     const sName = getServiceName(p.serviceId);
     return [p.projectName, cName, sName, stLabel(p.status || "")]
       .some(v => String(v ?? "").toLowerCase().includes(search.toLowerCase()));
@@ -86,7 +89,7 @@ export default function Projects() {
   const handleEdit = (p: Project) => {
     setFormData({
       projectName: p.projectName || "",
-      companyId: getId(p.companyId),
+      companyId: getCompanyText(p.companyId),
       serviceId: getId(p.serviceId),
       status: p.status || "active",
       startDate: p.startDate || "",
@@ -141,12 +144,7 @@ export default function Projects() {
                   </div>
                   <div className="space-y-1.5">
                     <Label>الشركة</Label>
-                    <Select value={formData.companyId || ""} onValueChange={v => set({ companyId: v })}>
-                      <SelectTrigger><SelectValue placeholder="اختر الشركة..." /></SelectTrigger>
-                      <SelectContent>
-                        {companies?.map(c => <SelectItem key={c._id} value={c._id}>{c.companyName}</SelectItem>)}
-                      </SelectContent>
-                    </Select>
+                    <Input value={formData.companyId || ""} onChange={e => set({ companyId: e.target.value })} placeholder="اسم الشركة" />
                   </div>
                   <div className="space-y-1.5">
                     <Label>الخدمة <span className="text-destructive">*</span></Label>
@@ -215,7 +213,7 @@ export default function Projects() {
                 filtered.map(p => (
                   <TableRow key={p._id}>
                     <TableCell className="font-medium">{p.projectName}</TableCell>
-                    <TableCell>{getCompanyName(p.companyId)}</TableCell>
+                    <TableCell>{getCompanyText(p.companyId)}</TableCell>
                     <TableCell>{getServiceName(p.serviceId)}</TableCell>
                     <TableCell>
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${stColor(p.status || "")}`}>

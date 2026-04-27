@@ -132,7 +132,7 @@ export const Service = model("Service", ServiceSchema);
 const ProjectSchema = new Schema({
   _id: { type: Number },
   project_name: { type: String, required: true },
-  company_id: { type: Number, default: null },
+  company_id: { type: Schema.Types.Mixed, default: null },
   service_id: { type: Number, default: null },
   status: { type: String, default: "active" },
   start_date: { type: Date, default: null },
