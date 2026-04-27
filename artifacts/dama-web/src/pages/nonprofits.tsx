@@ -96,8 +96,8 @@ export default function Nonprofits() {
                       <Input required value={formData.establishmentName} onChange={e => set({ establishmentName: e.target.value })} placeholder="الاسم الرسمي للجهة" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>رقم الترخيص <span className="text-destructive">*</span></Label>
-                      <Input required value={formData.licenseNumber} onChange={e => set({ licenseNumber: e.target.value })} dir="ltr" className="text-right" placeholder="رقم الترخيص" />
+                      <Label>رقم الترخيص </Label>
+                      <Input  value={formData.licenseNumber} onChange={e => set({ licenseNumber: e.target.value })} dir="ltr" className="text-right" placeholder="رقم الترخيص" />
                     </div>
                     <div className="space-y-1.5">
                       <Label>القطاع</Label>

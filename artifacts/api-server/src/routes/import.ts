@@ -67,8 +67,8 @@ const TEMPLATES: Record<string, { headers: string[]; notes?: string[][] }> = {
   employees: { headers: ["الاسم الكامل*", "رقم الهوية", "البريد الإلكتروني", "الهاتف", "تاريخ التعيين", "المسمى الوظيفي", "القسم", "الراتب", "الحالة"], notes: [[], [], [], [], ["صيغة: 2024-01-15"], [], ["الوحدة التشغيلية / الموارد البشرية / اتصال مؤسسي / المالية / التسويق / إعلام"], [], ["نشط / إجازة / استقالة / إنهاء خدمة"]] },
   consultants: { headers: ["الاسم الكامل*", "رقم الهوية", "البريد الإلكتروني", "الهاتف", "التخصص", "الدرجة العلمية*", "التوافر", "المجال الاستشاري"], notes: [[], [], [], [], [], ["بكالوريوس / ماجستير / دكتوراه"], ["متاح / مشغول / غير نشط"], []] },
   trainees: { headers: ["الاسم الكامل*", "البريد الإلكتروني", "الهاتف", "الجامعة*", "التخصص", "نوع التدريب*", "تاريخ البدء", "تاريخ الانتهاء", "القسم"], notes: [[], [], [], [], [], ["صيفي / تعاوني / برنامج خريجين / تمهير / تدريب داما"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"], ["الوحدة التشغيلية / الموارد البشرية / اتصال مؤسسي / المالية / التسويق / إعلام"]] },
-  companies: { headers: ["اسم الشركة*", "رقم السجل التجاري*", "القطاع", "حجم الشركة", "العنوان", "الهاتف", "البريد الإلكتروني"], notes: [[], [], [], ["ناشئة / صغيرة / متوسطة / كبيرة / مؤسسة"], [], [], []] },
-  nonprofits: { headers: ["اسم المنشأة*", "رقم الترخيص*", "القطاع", "العنوان", "الموقع الإلكتروني", "الهاتف", "البريد الإلكتروني"], notes: [["يقبل أيضاً: اسم المنشاء / اسم المنظمة"], [], [], [], [], [], []] },
+  companies: { headers: ["اسم الشركة*", "رقم السجل التجاري*", "القطاع", "حجم الشركة", "حالة العقد", "العنوان", "الهاتف", "البريد الإلكتروني"], notes: [[], [], [], ["ناشئة / صغيرة / متوسطة / كبيرة / مؤسسة"], ["ساري المفعول / منتهي / لا يوجد"], [], [], []] },
+  nonprofits: { headers: ["اسم المنشأة*", "رقم الترخيص", "القطاع", "العنوان", "الموقع الإلكتروني", "الهاتف", "البريد الإلكتروني"], notes: [["يقبل أيضاً: اسم المنشاء / اسم المنظمة"], [], [], [], [], [], []] },
   services: { headers: ["اسم الخدمة*", "فئة الخدمة", "الوصف", "السعر الأساسي", "نشطة"], notes: [[], [], [], [], ["نعم / لا"]] },
   projects: { headers: ["اسم المشروع*", "اسم الشركة*", "اسم الخدمة*", "الحالة", "تاريخ البدء", "تاريخ الانتهاء"], notes: [[], ["يجب أن تكون موجودة في النظام"], ["يجب أن تكون موجودة في النظام"], ["مخطط / قيد التنفيذ / مكتمل / معلق"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"]] },
 };
@@ -216,15 +216,18 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const crNumber = col(r, "رقم السجل التجاري*", "رقم السجل التجاري", "السجل التجاري*", "السجل التجاري");
         if (!crNumber) { fail(rn, errRequired("رقم السجل التجاري")); continue; }
         const industry = col(r, "القطاع"); const companySize = col(r, "حجم الشركة");
+        const contractStatus = col(r, "حالة العقد");
         const address = col(r, "العنوان"); const contactPhone = col(r, "الهاتف", "هاتف");
         const contactEmail = col(r, "البريد الإلكتروني", "بريد");
         if (companySize && !COMPANY_SIZE_AR.includes(companySize)) { fail(rn, errInvalidValue("حجم الشركة", companySize, COMPANY_SIZE_AR)); continue; }
+        const CONTRACT_STATUS_AR = ["ساري المفعول", "منتهي", "لا يوجد"];
+        if (contractStatus && !CONTRACT_STATUS_AR.includes(contractStatus)) { fail(rn, errInvalidValue("حالة العقد", contractStatus, CONTRACT_STATUS_AR)); continue; }
         if (contactEmail && !validateEmail(contactEmail)) { fail(rn, errInvalidEmail(contactEmail)); continue; }
         if (seenCR.has(crNumber)) { fail(rn, errDupInFile("رقم السجل التجاري", crNumber)); continue; }
         if (await Company.findOne({ cr_number: crNumber, is_deleted: false })) { fail(rn, errDupInDB("رقم السجل التجاري", crNumber)); continue; }
         seenCR.add(crNumber);
         const seq = await getNextSeq("company");
-        await Company.create({ _id: seq, company_name: companyName, cr_number: crNumber, industry: industry||null, company_size: companySize||null, contact_phone: contactPhone||null, contact_email: contactEmail||null, address: address||null });
+        await Company.create({ _id: seq, company_name: companyName, cr_number: crNumber, industry: industry||null, company_size: companySize||null, contract_status: contractStatus||null, contact_phone: contactPhone||null, contact_email: contactEmail||null, address: address||null });
         added.push(seq);
       }
 
@@ -234,15 +237,16 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const r = rows[i]; const rn = i + 2;
         const establishmentName = col(r, "اسم المنشأة*", "اسم المنشأة", "اسم المنشاء", "اسم المنشاة", "اسم المنشاه", "اسم المنظمة");
         if (!establishmentName) { fail(rn, errRequired("اسم المنشأة")); continue; }
-        const licenseNumber = col(r, "رقم الترخيص*", "رقم الترخيص");
-        if (!licenseNumber) { fail(rn, errRequired("رقم الترخيص")); continue; }
+        const licenseNumber = col(r, "رقم الترخيص*", "رقم الترخيص") || null;
         const contactEmail = col(r, "البريد الإلكتروني*", "البريد الإلكتروني", "بريد المسؤول", "بريد");
         if (contactEmail && !validateEmail(contactEmail)) { fail(rn, errInvalidEmail(contactEmail)); continue; }
         const sector = col(r, "القطاع", "نوع المنظمة"); const address = col(r, "العنوان");
         const website = col(r, "الموقع الإلكتروني", "الموقع الالكتروني"); const contactPhone = col(r, "الهاتف", "هاتف");
-        if (seenLic.has(licenseNumber)) { fail(rn, errDupInFile("رقم الترخيص", licenseNumber)); continue; }
-        if (await Nonprofit.findOne({ license_number: licenseNumber, is_deleted: false })) { fail(rn, errDupInDB("رقم الترخيص", licenseNumber)); continue; }
-        seenLic.add(licenseNumber);
+        if (licenseNumber) {
+          if (seenLic.has(licenseNumber)) { fail(rn, errDupInFile("رقم الترخيص", licenseNumber)); continue; }
+          if (await Nonprofit.findOne({ license_number: licenseNumber, is_deleted: false })) { fail(rn, errDupInDB("رقم الترخيص", licenseNumber)); continue; }
+          seenLic.add(licenseNumber);
+        }
         if (await Nonprofit.findOne({ establishment_name: { $regex: iregex(establishmentName) }, is_deleted: false })) { fail(rn, errDupInDB("اسم المنشأة", establishmentName)); continue; }
         const seq = await getNextSeq("nonprofit");
         await Nonprofit.create({ _id: seq, establishment_name: establishmentName, sector: sector||null, license_number: licenseNumber, address: address||null, website: website||null, contact_phone: contactPhone||null, contact_email: contactEmail });
