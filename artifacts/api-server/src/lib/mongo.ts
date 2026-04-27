@@ -1,19 +1,14 @@
 import mongoose, { Schema, model } from "mongoose";
 import { logger } from "./logger.js";
 
-// Extract host portion from MONGODB_URI (strip credentials if present).
-// Credentials are passed separately via mongoose auth options to avoid encoding issues.
 function getMongoHost(): string {
   const raw = process.env["MONGODB_URI"] || "";
-  // Strip everything between :// and the last @ (handles @@ and other broken forms)
-  // e.g. mongodb+srv://user:pass@@host → mongodb+srv://host
   return raw.replace(/^(mongodb(?:\+srv)?:\/\/).+@+/, "$1");
 }
 const MONGO_HOST = getMongoHost();
 const MONGO_USER = "dama_db_user";
 const MONGO_PASS = process.env["MONGODB_PASS"] || "";
 
-// ── Counter for auto-increment IDs ────────────────────────────────────────────
 const CounterSchema = new Schema({ _id: { type: String }, seq: { type: Number, default: 0 } });
 const Counter = model("Counter", CounterSchema);
 
@@ -22,7 +17,6 @@ export async function getNextSeq(name: string): Promise<number> {
   return doc!.seq;
 }
 
-// ── Users ─────────────────────────────────────────────────────────────────────
 const UserSchema = new Schema({
   _id: { type: Number },
   username: { type: String, required: true, unique: true },
@@ -35,7 +29,6 @@ const UserSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const User = model("User", UserSchema);
 
-// ── Employees ─────────────────────────────────────────────────────────────────
 const EmployeeSchema = new Schema({
   _id: { type: Number },
   employee_id: { type: String, unique: true, sparse: true },
@@ -52,7 +45,6 @@ const EmployeeSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Employee = model("Employee", EmployeeSchema);
 
-// ── Consultants ───────────────────────────────────────────────────────────────
 const ConsultantSchema = new Schema({
   _id: { type: Number },
   consultant_id: { type: String, unique: true, sparse: true },
@@ -68,7 +60,6 @@ const ConsultantSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Consultant = model("Consultant", ConsultantSchema);
 
-// ── Trainees ──────────────────────────────────────────────────────────────────
 const TraineeSchema = new Schema({
   _id: { type: Number },
   full_name: { type: String, required: true },
@@ -85,7 +76,6 @@ const TraineeSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Trainee = model("Trainee", TraineeSchema);
 
-// ── Companies ─────────────────────────────────────────────────────────────────
 const CompanySchema = new Schema({
   _id: { type: Number },
   company_name: { type: String, required: true },
@@ -100,7 +90,21 @@ const CompanySchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Company = model("Company", CompanySchema);
 
-// ── Nonprofits ────────────────────────────────────────────────────────────────
+// ── Nonprofit Companies ───────────────────────────────────────────────────────
+const NonprofitCompanySchema = new Schema({
+  _id: { type: Number },
+  company_name: { type: String, required: true },
+  cr_number: { type: String, default: null },
+  industry: { type: String, default: null },
+  company_size: { type: String, default: null },
+  contract_status: { type: String, default: null },
+  address: { type: String, default: null },
+  contact_phone: { type: String, default: null },
+  contact_email: { type: String, default: null },
+  is_deleted: { type: Boolean, default: false },
+}, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
+export const NonprofitCompany = model("NonprofitCompany", NonprofitCompanySchema);
+
 const NonprofitSchema = new Schema({
   _id: { type: Number },
   establishment_name: { type: String, required: true },
@@ -114,7 +118,6 @@ const NonprofitSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Nonprofit = model("Nonprofit", NonprofitSchema);
 
-// ── Services ──────────────────────────────────────────────────────────────────
 const ServiceSchema = new Schema({
   _id: { type: Number },
   service_name: { type: String, required: true },
@@ -126,7 +129,6 @@ const ServiceSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Service = model("Service", ServiceSchema);
 
-// ── Projects ──────────────────────────────────────────────────────────────────
 const ProjectSchema = new Schema({
   _id: { type: Number },
   project_name: { type: String, required: true },
@@ -139,7 +141,6 @@ const ProjectSchema = new Schema({
 }, { timestamps: { createdAt: "created_at", updatedAt: "updated_at" }, _id: false });
 export const Project = model("Project", ProjectSchema);
 
-// ── Connect & Seed ────────────────────────────────────────────────────────────
 export async function connectDB(): Promise<void> {
   logger.info({ host: MONGO_HOST, user: MONGO_USER }, "Connecting to MongoDB");
   await mongoose.connect(MONGO_HOST, {

@@ -29,7 +29,10 @@ import type {
   LoginResponse,
   MeResponse,
   Nonprofit,
+    NonprofitCompany,
+  NonprofitCompanyInput,
   NonprofitInput,
+  
   Project,
   ProjectInput,
   Service,
@@ -1998,6 +2001,281 @@ export const useDeleteCompany = <
 > => {
   return useMutation(getDeleteCompanyMutationOptions(options));
 };
+export const getGetNonprofitCompaniesUrl = () => {
+  return `/api/nonprofit-companies`;
+};
+
+export const getNonprofitCompanies = async (
+  options?: RequestInit,
+): Promise<NonprofitCompany[]> => {
+  return customFetch<NonprofitCompany[]>(getGetNonprofitCompaniesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetNonprofitCompaniesQueryKey = () => {
+  return [`/api/nonprofit-companies`] as const;
+};
+
+export const getGetNonprofitCompaniesQueryOptions = <
+  TData = Awaited<ReturnType<typeof getNonprofitCompanies>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNonprofitCompanies>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+  const queryKey = queryOptions?.queryKey ?? getGetNonprofitCompaniesQueryKey();
+  const queryFn: QueryFunction<Awaited<ReturnType<typeof getNonprofitCompanies>>> = ({ signal }) =>
+    getNonprofitCompanies({ signal, ...requestOptions });
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof getNonprofitCompanies>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetNonprofitCompaniesQueryResult = NonNullable<Awaited<ReturnType<typeof getNonprofitCompanies>>>;
+export type GetNonprofitCompaniesQueryError = ErrorType<unknown>;
+
+export function useGetNonprofitCompanies<
+  TData = Awaited<ReturnType<typeof getNonprofitCompanies>>,
+  TError = ErrorType<unknown>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof getNonprofitCompanies>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetNonprofitCompaniesQueryOptions(options);
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & { queryKey: QueryKey };
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+export const getCreateNonprofitCompanyUrl = () => {
+  return `/api/nonprofit-companies`;
+};
+
+export const createNonprofitCompany = async (
+  nonprofitCompanyInput: NonprofitCompanyInput,
+  options?: RequestInit,
+): Promise<SuccessResponse> => {
+  return customFetch<SuccessResponse>(getCreateNonprofitCompanyUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(nonprofitCompanyInput),
+  });
+};
+
+export const getCreateNonprofitCompanyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNonprofitCompany>>,
+    TError,
+    { data: BodyType<NonprofitCompanyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createNonprofitCompany>>,
+  TError,
+  { data: BodyType<NonprofitCompanyInput> },
+  TContext
+> => {
+  const mutationKey = ["createNonprofitCompany"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createNonprofitCompany>>,
+    { data: BodyType<NonprofitCompanyInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+    return createNonprofitCompany(data, requestOptions);
+  };
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateNonprofitCompanyMutationResult = NonNullable<Awaited<ReturnType<typeof createNonprofitCompany>>>;
+export type CreateNonprofitCompanyMutationBody = BodyType<NonprofitCompanyInput>;
+export type CreateNonprofitCompanyMutationError = ErrorType<unknown>;
+
+export const useCreateNonprofitCompany = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createNonprofitCompany>>,
+    TError,
+    { data: BodyType<NonprofitCompanyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createNonprofitCompany>>,
+  TError,
+  { data: BodyType<NonprofitCompanyInput> },
+  TContext
+> => {
+  return useMutation(getCreateNonprofitCompanyMutationOptions(options));
+};
+
+export const getUpdateNonprofitCompanyUrl = (id: string) => {
+  return `/api/nonprofit-companies/${id}`;
+};
+
+export const updateNonprofitCompany = async (
+  id: string,
+  nonprofitCompanyInput: NonprofitCompanyInput,
+  options?: RequestInit,
+): Promise<SuccessResponse> => {
+  return customFetch<SuccessResponse>(getUpdateNonprofitCompanyUrl(id), {
+    ...options,
+    method: "PUT",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(nonprofitCompanyInput),
+  });
+};
+
+export const getUpdateNonprofitCompanyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateNonprofitCompany>>,
+    TError,
+    { id: string; data: BodyType<NonprofitCompanyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateNonprofitCompany>>,
+  TError,
+  { id: string; data: BodyType<NonprofitCompanyInput> },
+  TContext
+> => {
+  const mutationKey = ["updateNonprofitCompany"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateNonprofitCompany>>,
+    { id: string; data: BodyType<NonprofitCompanyInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+    return updateNonprofitCompany(id, data, requestOptions);
+  };
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateNonprofitCompanyMutationResult = NonNullable<Awaited<ReturnType<typeof updateNonprofitCompany>>>;
+export type UpdateNonprofitCompanyMutationBody = BodyType<NonprofitCompanyInput>;
+export type UpdateNonprofitCompanyMutationError = ErrorType<unknown>;
+
+export const useUpdateNonprofitCompany = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateNonprofitCompany>>,
+    TError,
+    { id: string; data: BodyType<NonprofitCompanyInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateNonprofitCompany>>,
+  TError,
+  { id: string; data: BodyType<NonprofitCompanyInput> },
+  TContext
+> => {
+  return useMutation(getUpdateNonprofitCompanyMutationOptions(options));
+};
+
+export const getDeleteNonprofitCompanyUrl = (id: string) => {
+  return `/api/nonprofit-companies/${id}`;
+};
+
+export const deleteNonprofitCompany = async (
+  id: string,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getDeleteNonprofitCompanyUrl(id), {
+    ...options,
+    method: "DELETE",
+  });
+};
+
+export const getDeleteNonprofitCompanyMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteNonprofitCompany>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof deleteNonprofitCompany>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  const mutationKey = ["deleteNonprofitCompany"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation && "mutationKey" in options.mutation && options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof deleteNonprofitCompany>>,
+    { id: string }
+  > = (props) => {
+    const { id } = props ?? {};
+    return deleteNonprofitCompany(id, requestOptions);
+  };
+  return { mutationFn, ...mutationOptions };
+};
+
+export type DeleteNonprofitCompanyMutationResult = NonNullable<Awaited<ReturnType<typeof deleteNonprofitCompany>>>;
+export type DeleteNonprofitCompanyMutationError = ErrorType<unknown>;
+
+export const useDeleteNonprofitCompany = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof deleteNonprofitCompany>>,
+    TError,
+    { id: string },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof deleteNonprofitCompany>>,
+  TError,
+  { id: string },
+  TContext
+> => {
+  return useMutation(getDeleteNonprofitCompanyMutationOptions(options));
+};
+
 
 export const getGetNonprofitsUrl = () => {
   return `/api/nonprofits`;

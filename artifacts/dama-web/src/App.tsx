@@ -12,11 +12,18 @@ import Consultants from "@/pages/consultants";
 import Trainees from "@/pages/trainees";
 import Companies from "@/pages/companies";
 import Nonprofits from "@/pages/nonprofits";
+import NonprofitCompanies from "@/pages/nonprofit-companies";
 import Services from "@/pages/services";
 import Projects from "@/pages/projects";
 import Users from "@/pages/users";
 
 const queryClient = new QueryClient();
+
+function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
+  const token = localStorage.getItem("dama_token");
+  if (!token) return <Redirect to="/login" />;
+  return <Component />;
+}
 
 function Router() {
   const token = localStorage.getItem("dama_token");
@@ -26,16 +33,19 @@ function Router() {
       <Route path="/">
         <Redirect to="/login" />
       </Route>
-      <Route path="/login" component={Login} />
-      <Route path="/dashboard" component={Dashboard} />
-      <Route path="/employees" component={Employees} />
-      <Route path="/consultants" component={Consultants} />
-      <Route path="/trainees" component={Trainees} />
-      <Route path="/companies" component={Companies} />
-      <Route path="/nonprofits" component={Nonprofits} />
-      <Route path="/services" component={Services} />
-      <Route path="/projects" component={Projects} />
-      <Route path="/users" component={Users} />
+      <Route path="/login">
+        {token ? <Redirect to="/dashboard" /> : <Login />}
+      </Route>
+      <Route path="/dashboard"><ProtectedRoute component={Dashboard} /></Route>
+      <Route path="/employees"><ProtectedRoute component={Employees} /></Route>
+      <Route path="/consultants"><ProtectedRoute component={Consultants} /></Route>
+      <Route path="/trainees"><ProtectedRoute component={Trainees} /></Route>
+      <Route path="/companies"><ProtectedRoute component={Companies} /></Route>
+      <Route path="/nonprofits"><ProtectedRoute component={Nonprofits} /></Route>
+      <Route path="/nonprofit-companies"><ProtectedRoute component={NonprofitCompanies} /></Route>
+      <Route path="/services"><ProtectedRoute component={Services} /></Route>
+      <Route path="/projects"><ProtectedRoute component={Projects} /></Route>
+      <Route path="/users"><ProtectedRoute component={Users} /></Route>
       <Route component={NotFound} />
     </Switch>
   );

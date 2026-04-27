@@ -25,6 +25,7 @@ export function Layout({ children }: { children: ReactNode }) {
     { name: "المتدربين", href: "/trainees", icon: GraduationCap },
     { name: "الشركات", href: "/companies", icon: Building2 },
     { name: "الجهات غير الربحية", href: "/nonprofits", icon: Building },
+    { name: "الشركات غير الربحية", href: "/nonprofit-companies", icon: Building2 },
     { name: "الخدمات", href: "/services", icon: Briefcase },
     { name: "المشاريع", href: "/projects", icon: FolderKanban },
   ];
@@ -40,7 +41,6 @@ export function Layout({ children }: { children: ReactNode }) {
 
   return (
     <div className="flex h-screen bg-muted/30">
-      {/* Sidebar */}
       <aside className="w-64 bg-primary text-primary-foreground flex flex-col border-l border-primary-border">
         <div className="h-16 flex items-center justify-center border-b border-white/10 px-6">
           <h1 className="text-xl font-bold tracking-tight">نظام داما القابضة للإدارة</h1>
@@ -83,7 +83,6 @@ export function Layout({ children }: { children: ReactNode }) {
         </div>
       </aside>
 
-      {/* Main Content */}
       <main className="flex-1 flex flex-col min-w-0 overflow-hidden">
         <header className="h-16 flex items-center px-6 bg-card border-b">
           <h2 className="text-xl font-semibold text-foreground">
