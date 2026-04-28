@@ -71,7 +71,7 @@ const TEMPLATES: Record<string, { headers: string[]; notes?: string[][] }> = {
   "nonprofit-companies": { headers: ["اسم الشركة*", "رقم السجل التجاري*", "القطاع", "حجم الشركة", "حالة العقد", "العنوان", "الهاتف", "البريد الإلكتروني"], notes: [[], [], [], ["ناشئة / صغيرة / متوسطة / كبيرة / مؤسسة"], ["ساري المفعول / منتهي / لا يوجد"], [], [], []] },
   nonprofits: { headers: ["اسم المنشأة*", "رقم الترخيص", "القطاع", "العنوان", "الموقع الإلكتروني", "الهاتف", "البريد الإلكتروني"], notes: [["يقبل أيضاً: اسم المنشاء / اسم المنظمة"], [], [], [], [], [], []] },
   services: { headers: ["اسم الخدمة*", "فئة الخدمة", "الوصف", "السعر الأساسي", "نشطة"], notes: [[], [], [], [], ["نعم / لا"]] },
-  projects: { headers: ["اسم المشروع*", "اسم الشركة*", "اسم الخدمة*", "الحالة", "تاريخ البدء", "تاريخ الانتهاء"], notes: [[], ["يجب أن تكون موجودة في النظام"], ["يجب أن تكون موجودة في النظام"], ["مخطط / قيد التنفيذ / مكتمل / معلق"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"]] },
+    projects: { headers: ["اسم المشروع*", "اسم الشركة", "اسم الخدمة*", "الحالة", "تاريخ البدء", "تاريخ الانتهاء"], notes: [[], ["يمكن كتابة أي اسم شركة"], ["يجب أن تكون موجودة في النظام"], ["مخطط / قيد التنفيذ / مكتمل / معلق"], ["صيغة: 2024-01-15"], ["يجب أن يكون بعد تاريخ البدء"]] },
 };
 
 function sheetToRows(buffer: Buffer): Record<string, any>[] {
@@ -309,7 +309,6 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         const projectName = col(r, "اسم المشروع*", "اسم المشروع");
         if (!projectName) { fail(rn, errRequired("اسم المشروع")); continue; }
         const companyNameRaw = col(r, "اسم الشركة*", "اسم الشركة");
-        if (!companyNameRaw) { fail(rn, errRequired("اسم الشركة")); continue; }
         const serviceNameRaw = col(r, "اسم الخدمة*", "اسم الخدمة");
         if (!serviceNameRaw) { fail(rn, errRequired("اسم الخدمة")); continue; }
         const statusRaw = col(r, "الحالة") || "قيد التنفيذ";
@@ -320,14 +319,12 @@ router.post("/:entity", requireRole("admin", "manager"), upload.single("file"), 
         if (startRaw && !startDate) { fail(rn, errInvalidDate("تاريخ البدء", String(startRaw))); continue; }
         if (endRaw && !endDate) { fail(rn, errInvalidDate("تاريخ الانتهاء", String(endRaw))); continue; }
         if (startDate && endDate && endDate <= startDate) { fail(rn, errDateOrder()); continue; }
-        const company = await Company.findOne({ company_name: { $regex: iregex(companyNameRaw) }, is_deleted: false }).lean();
-        if (!company) { fail(rn, errNotFound("الشركة", companyNameRaw, "أضفها أولاً من قسم الشركات")); continue; }
         const service = await Service.findOne({ service_name: { $regex: iregex(serviceNameRaw) }, is_deleted: false }).lean();
         if (!service) { fail(rn, errNotFound("الخدمة", serviceNameRaw, "أضفها أولاً من قسم الخدمات")); continue; }
         if (seenNames.has(projectName.toLowerCase())) { fail(rn, errDupInFile("اسم المشروع", projectName)); continue; }
         seenNames.add(projectName.toLowerCase());
         const seq = await getNextSeq("project");
-        await Project.create({ _id: seq, project_name: projectName, company_id: company._id, service_id: service._id, status, start_date: startDate, end_date: endDate });
+        await Project.create({ _id: seq, project_name: projectName, company_id: companyNameRaw || null, service_id: service._id, status, start_date: startDate, end_date: endDate });
         added.push(seq);
       }
 
