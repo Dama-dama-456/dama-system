@@ -44,11 +44,20 @@ router.get("/dashboard", authenticate, async (_req, res) => {
     const recentProjectDocs = await Project.find({ is_deleted: false })
       .sort({ _id: -1 }).limit(6).lean();
     const recentProjects = await Promise.all(recentProjectDocs.map(async p => {
-      const company = p.company_id ? await Company.findOne({ _id: p.company_id }).select("company_name").lean() : null;
+      let companyName: string | null = null;
+      if (p.company_id !== null && p.company_id !== undefined) {
+        const numId = Number(p.company_id);
+        if (!isNaN(numId) && String(p.company_id) === String(numId)) {
+          const company = await Company.findOne({ _id: numId }).select("company_name").lean();
+          companyName = company?.company_name || null;
+        } else {
+          companyName = String(p.company_id);
+        }
+      }
       const service = p.service_id ? await Service.findOne({ _id: p.service_id }).select("service_name").lean() : null;
       return {
         projectName: p.project_name,
-        companyName: company?.company_name || null,
+        companyName,
         serviceName: service?.service_name || null,
         status: p.status,
         startDate: p.start_date,
