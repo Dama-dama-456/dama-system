@@ -41,7 +41,7 @@ export default function NonprofitCompanies() {
   const set = (patch: Partial<NonprofitCompanyInput>) => setFormData(f => ({ ...f, ...patch }));
 
   const filtered = (companies ?? []).filter(c =>
-    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.contactEmail, c.companySize, c.contractStatus]
+    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.companySize, c.contractStatus]
       .some(v => String(v ?? "").toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -55,7 +55,7 @@ export default function NonprofitCompanies() {
       companyName: c.companyName || "", crNumber: c.crNumber || "",
       industry: c.industry || "", companySize: c.companySize || "",
       contractStatus: c.contractStatus || "",
-      address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: c.contactEmail || "",
+      address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: "",
     });
     setEditingId(c._id);
     setIsOpen(true);
@@ -129,10 +129,6 @@ export default function NonprofitCompanies() {
                     <div className="space-y-1.5">
                       <Label>الهاتف</Label>
                       <Input value={formData.contactPhone} onChange={e => set({ contactPhone: e.target.value })} dir="ltr" className="text-right" placeholder="05xxxxxxxx" />
-                    </div>
-                    <div className="space-y-1.5">
-                      <Label>البريد الإلكتروني</Label>
-                      <Input type="email" value={formData.contactEmail} onChange={e => set({ contactEmail: e.target.value })} dir="ltr" className="text-right" placeholder="info@company.com" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-2">

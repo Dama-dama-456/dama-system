@@ -15,8 +15,7 @@ import {
 import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { ImportExcel } from "@/components/import-excel";
 import { useRole } from "@/hooks/use-role";
-
-const DEPARTMENTS   = ["الوحدة التشغيلية","الموارد البشرية","اتصال مؤسسي","المالية","التسويق","إعلام"];
+const DEPARTMENTS   = ["الوحدة التشغيلية","الموارد البشرية","اتصال مؤسسي","المالية","التسويق","إعلام","تحول رقمي"];
 const TRAINING_TYPES = ["صيفي","تعاوني","برنامج خريجين","تمهير","تدريب داما"];
 
 const EMPTY: TraineeInput = {

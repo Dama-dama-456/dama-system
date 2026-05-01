@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/layout";
@@ -17,7 +16,6 @@ import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { ImportExcel } from "@/components/import-excel";
 import { useRole } from "@/hooks/use-role";
 
-const COMPANY_SIZES = ["ناشئة","صغيرة","متوسطة","كبيرة","مؤسسة"];
 const CONTRACT_STATUSES = ["ساري المفعول","منتهي","لا يوجد"];
 
 const EMPTY: CompanyInput = {
@@ -42,7 +40,7 @@ export default function Companies() {
   const set = (patch: Partial<CompanyInput>) => setFormData(f => ({ ...f, ...patch }));
 
   const filtered = (companies ?? []).filter(c =>
-    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.contactEmail, c.companySize, c.contractStatus]
+    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.contactEmail, c.contractStatus]
       .some(v => String(v ?? "").toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -54,7 +52,7 @@ export default function Companies() {
   const handleEdit = (c: Company) => {
     setFormData({
       companyName: c.companyName || "", crNumber: c.crNumber || "",
-      industry: c.industry || "", companySize: c.companySize || "",
+      industry: c.industry || "", companySize: "",
       contractStatus: c.contractStatus || "",
       address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: c.contactEmail || "",
     });
@@ -110,13 +108,6 @@ export default function Companies() {
                       <Input value={formData.industry} onChange={e => set({ industry: e.target.value })} placeholder="مثال: تقنية المعلومات" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>حجم الشركة</Label>
-                      <Select value={formData.companySize || ""} onValueChange={v => set({ companySize: v })}>
-                        <SelectTrigger><SelectValue placeholder="اختر حجم الشركة" /></SelectTrigger>
-                        <SelectContent>{COMPANY_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1.5">
                       <Label>حالة العقد</Label>
                       <Select value={formData.contractStatus || ""} onValueChange={v => set({ contractStatus: v })}>
                         <SelectTrigger><SelectValue placeholder="اختر حالة العقد" /></SelectTrigger>
@@ -158,7 +149,6 @@ export default function Companies() {
                 <TableHead>اسم الشركة</TableHead>
                 <TableHead>رقم السجل التجاري</TableHead>
                 <TableHead>القطاع</TableHead>
-                <TableHead>حجم الشركة</TableHead>
                 <TableHead>حالة العقد</TableHead>
                 <TableHead>الهاتف</TableHead>
                 <TableHead className="w-[100px]">الإجراءات</TableHead>
@@ -166,16 +156,15 @@ export default function Companies() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={7} className="text-center">جاري التحميل...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center">جاري التحميل...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">{search ? "لا توجد نتائج مطابقة" : "لا يوجد شركات"}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">{search ? "لا توجد نتائج مطابقة" : "لا يوجد شركات"}</TableCell></TableRow>
               ) : (
                 filtered.map(c => (
                   <TableRow key={c._id}>
                     <TableCell className="font-medium">{c.companyName}</TableCell>
                     <TableCell dir="ltr" className="text-right">{c.crNumber}</TableCell>
                     <TableCell>{c.industry}</TableCell>
-                    <TableCell>{c.companySize}</TableCell>
                     <TableCell>{c.contractStatus}</TableCell>
                     <TableCell dir="ltr" className="text-right">{c.contactPhone}</TableCell>
                     <TableCell>
