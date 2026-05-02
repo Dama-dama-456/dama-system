@@ -37,7 +37,7 @@ export default function Nonprofits() {
   const set = (patch: Partial<NonprofitInput>) => setFormData(f => ({ ...f, ...patch }));
 
   const filtered = (nonprofits ?? []).filter(n =>
-    [n.establishmentName, n.licenseNumber, n.sector, n.address, n.contactPhone, n.contactEmail]
+    [n.establishmentName, n.licenseNumber, n.sector, n.address, n.contactPhone]
       .some(v => String(v ?? "").toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -50,7 +50,7 @@ export default function Nonprofits() {
     setFormData({
       establishmentName: n.establishmentName || "", licenseNumber: n.licenseNumber || "",
       sector: n.sector || "", address: n.address || "",
-      website: n.website || "", contactPhone: n.contactPhone || "", contactEmail: n.contactEmail || "",
+      website: n.website || "", contactPhone: n.contactPhone || "", contactEmail: "",
     });
     setEditingId(n._id);
     setIsOpen(true);
@@ -96,8 +96,8 @@ export default function Nonprofits() {
                       <Input required value={formData.establishmentName} onChange={e => set({ establishmentName: e.target.value })} placeholder="الاسم الرسمي للجهة" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>رقم الترخيص </Label>
-                      <Input  value={formData.licenseNumber} onChange={e => set({ licenseNumber: e.target.value })} dir="ltr" className="text-right" placeholder="رقم الترخيص" />
+                      <Label>رقم الترخيص</Label>
+                      <Input value={formData.licenseNumber} onChange={e => set({ licenseNumber: e.target.value })} dir="ltr" className="text-right" placeholder="رقم الترخيص" />
                     </div>
                     <div className="space-y-1.5">
                       <Label>القطاع</Label>
@@ -114,10 +114,6 @@ export default function Nonprofits() {
                     <div className="space-y-1.5">
                       <Label>الموقع الإلكتروني</Label>
                       <Input value={formData.website} onChange={e => set({ website: e.target.value })} dir="ltr" className="text-right" placeholder="www.example.org" />
-                    </div>
-                    <div className="space-y-1.5 col-span-2">
-                      <Label>البريد الإلكتروني <span className="text-destructive">*</span></Label>
-                      <Input required type="email" value={formData.contactEmail} onChange={e => set({ contactEmail: e.target.value })} dir="ltr" className="text-right" placeholder="info@org.com" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-2">
@@ -143,7 +139,7 @@ export default function Nonprofits() {
                 <TableHead>رقم الترخيص</TableHead>
                 <TableHead>القطاع</TableHead>
                 <TableHead>العنوان</TableHead>
-                <TableHead>البريد الإلكتروني</TableHead>
+                <TableHead>الهاتف</TableHead>
                 <TableHead className="w-[100px]">الإجراءات</TableHead>
               </TableRow>
             </TableHeader>
@@ -159,7 +155,7 @@ export default function Nonprofits() {
                     <TableCell dir="ltr" className="text-right">{n.licenseNumber}</TableCell>
                     <TableCell>{n.sector}</TableCell>
                     <TableCell>{n.address}</TableCell>
-                    <TableCell dir="ltr" className="text-right">{n.contactEmail}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{n.contactPhone}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-2">
                         {canEdit && <Button variant="ghost" size="icon" onClick={() => handleEdit(n)}><Pencil className="h-4 w-4" /></Button>}

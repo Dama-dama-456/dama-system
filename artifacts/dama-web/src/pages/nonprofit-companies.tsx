@@ -16,12 +16,11 @@ import { Plus, Pencil, Trash2, Search } from "lucide-react";
 import { ImportExcel } from "@/components/import-excel";
 import { useRole } from "@/hooks/use-role";
 
-const COMPANY_SIZES = ["ناشئة","صغيرة","متوسطة","كبيرة","مؤسسة"];
 const CONTRACT_STATUSES = ["ساري المفعول","منتهي","لا يوجد"];
 
 const EMPTY: NonprofitCompanyInput = {
   companyName: "", crNumber: "", industry: "",
-  companySize: "", contractStatus: "", address: "", contactPhone: "", contactEmail: "",
+  contractStatus: "", address: "", contactPhone: "", contactEmail: "",
 };
 
 export default function NonprofitCompanies() {
@@ -41,7 +40,7 @@ export default function NonprofitCompanies() {
   const set = (patch: Partial<NonprofitCompanyInput>) => setFormData(f => ({ ...f, ...patch }));
 
   const filtered = (companies ?? []).filter(c =>
-    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.companySize, c.contractStatus]
+    [c.companyName, c.crNumber, c.industry, c.address, c.contactPhone, c.contactEmail, c.contractStatus]
       .some(v => String(v ?? "").toLowerCase().includes(search.toLowerCase()))
   );
 
@@ -53,9 +52,9 @@ export default function NonprofitCompanies() {
   const handleEdit = (c: NonprofitCompany) => {
     setFormData({
       companyName: c.companyName || "", crNumber: c.crNumber || "",
-      industry: c.industry || "", companySize: c.companySize || "",
+      industry: c.industry || "",
       contractStatus: c.contractStatus || "",
-      address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: "",
+      address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: c.contactEmail || "",
     });
     setEditingId(c._id);
     setIsOpen(true);
@@ -109,13 +108,6 @@ export default function NonprofitCompanies() {
                       <Input value={formData.industry} onChange={e => set({ industry: e.target.value })} placeholder="مثال: تقنية المعلومات" />
                     </div>
                     <div className="space-y-1.5">
-                      <Label>حجم الشركة</Label>
-                      <Select value={formData.companySize || ""} onValueChange={v => set({ companySize: v })}>
-                        <SelectTrigger><SelectValue placeholder="اختر حجم الشركة" /></SelectTrigger>
-                        <SelectContent>{COMPANY_SIZES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-                    <div className="space-y-1.5">
                       <Label>حالة العقد</Label>
                       <Select value={formData.contractStatus || ""} onValueChange={v => set({ contractStatus: v })}>
                         <SelectTrigger><SelectValue placeholder="اختر حالة العقد" /></SelectTrigger>
@@ -129,6 +121,10 @@ export default function NonprofitCompanies() {
                     <div className="space-y-1.5">
                       <Label>الهاتف</Label>
                       <Input value={formData.contactPhone} onChange={e => set({ contactPhone: e.target.value })} dir="ltr" className="text-right" placeholder="05xxxxxxxx" />
+                    </div>
+                    <div className="space-y-1.5">
+                      <Label>البريد الإلكتروني</Label>
+                      <Input type="email" value={formData.contactEmail} onChange={e => set({ contactEmail: e.target.value })} dir="ltr" className="text-right" placeholder="info@company.com" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-2">
@@ -153,7 +149,6 @@ export default function NonprofitCompanies() {
                 <TableHead>اسم الشركة</TableHead>
                 <TableHead>رقم السجل التجاري</TableHead>
                 <TableHead>القطاع</TableHead>
-                <TableHead>حجم الشركة</TableHead>
                 <TableHead>حالة العقد</TableHead>
                 <TableHead>الهاتف</TableHead>
                 <TableHead className="w-[100px]">الإجراءات</TableHead>
@@ -161,16 +156,15 @@ export default function NonprofitCompanies() {
             </TableHeader>
             <TableBody>
               {isLoading ? (
-                <TableRow><TableCell colSpan={7} className="text-center">جاري التحميل...</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center">جاري التحميل...</TableCell></TableRow>
               ) : filtered.length === 0 ? (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground">{search ? "لا توجد نتائج مطابقة" : "لا يوجد شركات غير ربحية"}</TableCell></TableRow>
+                <TableRow><TableCell colSpan={6} className="text-center text-muted-foreground">{search ? "لا توجد نتائج مطابقة" : "لا يوجد شركات غير ربحية"}</TableCell></TableRow>
               ) : (
                 filtered.map(c => (
                   <TableRow key={c._id}>
                     <TableCell className="font-medium">{c.companyName}</TableCell>
                     <TableCell dir="ltr" className="text-right">{c.crNumber}</TableCell>
                     <TableCell>{c.industry}</TableCell>
-                    <TableCell>{c.companySize}</TableCell>
                     <TableCell>{c.contractStatus}</TableCell>
                     <TableCell dir="ltr" className="text-right">{c.contactPhone}</TableCell>
                     <TableCell>

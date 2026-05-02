@@ -20,8 +20,9 @@ const CONTRACT_STATUSES = ["ساري المفعول","منتهي","لا يوجد
 
 const EMPTY: CompanyInput = {
   companyName: "", crNumber: "", industry: "",
-  companySize: "", contractStatus: "", address: "", contactPhone: "", contactEmail: "",
+  contractStatus: "", address: "", contactPhone: "", contactEmail: "",
 };
+
 
 export default function Companies() {
   const { canEdit, canDelete, canImport } = useRole();
@@ -52,7 +53,7 @@ export default function Companies() {
   const handleEdit = (c: Company) => {
     setFormData({
       companyName: c.companyName || "", crNumber: c.crNumber || "",
-      industry: c.industry || "", companySize: "",
+      industry: c.industry || "",
       contractStatus: c.contractStatus || "",
       address: c.address || "", contactPhone: c.contactPhone || "", contactEmail: c.contactEmail || "",
     });
