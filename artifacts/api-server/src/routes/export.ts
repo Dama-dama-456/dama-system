@@ -36,9 +36,9 @@ router.get("/:entity", async (req: Request, res: Response) => {
         r.end_date ? String(r.end_date).substring(0,10) : "", r.department]);
 
     } else if (entity === "companies") {
-      headers = ["اسم الشركة", "رقم السجل التجاري", "القطاع", "حجم الشركة", "العنوان", "الهاتف", "البريد الإلكتروني"];
+      headers = ["اسم الشركة", "رقم السجل التجاري", "القطاع", "العنوان", "الهاتف", "البريد الإلكتروني"];
       const rows = await Company.find({ is_deleted: false }).sort({ _id: 1 }).lean();
-      data = rows.map(r => [r.company_name, r.cr_number, r.industry, r.company_size, r.address, r.contact_phone, r.contact_email]);
+      data = rows.map(r => [r.company_name, r.cr_number, r.industry, r.address, r.contact_phone, r.contact_email]);
 
     } else if (entity === "nonprofits") {
       headers = ["اسم المنشأة", "رقم الترخيص", "القطاع", "العنوان", "الموقع الإلكتروني", "الهاتف", "البريد الإلكتروني"];

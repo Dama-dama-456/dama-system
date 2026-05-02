@@ -20,6 +20,7 @@ const EMPTY: NonprofitInput = {
   address: "", website: "", contactPhone: "", contactEmail: "",
 };
 
+
 export default function Nonprofits() {
   const { canEdit, canDelete, canImport } = useRole();
   const { data: nonprofits, isLoading } = useGetNonprofits();
@@ -50,7 +51,7 @@ export default function Nonprofits() {
     setFormData({
       establishmentName: n.establishmentName || "", licenseNumber: n.licenseNumber || "",
       sector: n.sector || "", address: n.address || "",
-      website: n.website || "", contactPhone: n.contactPhone || "", contactEmail: "",
+      website: n.website || "", contactPhone: n.contactPhone || "", contactEmail: n.contactEmail || "",
     });
     setEditingId(n._id);
     setIsOpen(true);
@@ -114,6 +115,10 @@ export default function Nonprofits() {
                     <div className="space-y-1.5">
                       <Label>الموقع الإلكتروني</Label>
                       <Input value={formData.website} onChange={e => set({ website: e.target.value })} dir="ltr" className="text-right" placeholder="www.example.org" />
+                    </div>
+                    <div className="space-y-1.5 col-span-2">
+                      <Label>البريد الإلكتروني</Label>
+                      <Input type="email" value={formData.contactEmail} onChange={e => set({ contactEmail: e.target.value })} dir="ltr" className="text-right" placeholder="info@example.org" />
                     </div>
                   </div>
                   <div className="flex justify-end pt-2">
